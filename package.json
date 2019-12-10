@@ -1,6 +1,6 @@
 {
-  "name": "chatr",
-  "version": "1.0.0",
+  "name": "soft-phone",
+  "version": "0.0.0",
   "description": "Something",
   "main": "index.js",
   "scripts": {
@@ -16,9 +16,9 @@
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.7.4",
-    "@material-ui/core": "3.9.x",
-    "@types/react": "^16.4.0",
-    "@types/react-dom": "^16.4.0",
+    "@material-ui/core": "~3.9.0",
+    "@types/react": "^16.9.16",
+    "@types/react-dom": "^16.9.4",
     "react": "16.4.x",
     "react-dom": "16.4.x",
     "rollup": "^1.27.8",

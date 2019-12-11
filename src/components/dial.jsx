@@ -9,7 +9,7 @@ export const DIAL_MODEL = [
 ];
 
 export default function Dial({onDial = (() => null)}) {
-    const spacing = 1;
+    const spacing = 2;
 
     return (
         <GridList cellHeight={60} cols={3} spacing={spacing}>
@@ -20,6 +20,7 @@ export default function Dial({onDial = (() => null)}) {
                         size="large"
                         variant="contained"
                         style={{height: '100%'}}
+                        color="secondary"
                         onClick={() => onDial.apply(this, [symbol])}
                     >
                         {symbol}

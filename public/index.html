@@ -16,9 +16,18 @@
             href="https://fonts.googleapis.com/icon?family=Material+Icons"
             />
 
-        <!-- <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
-        <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
-        <script src="https://unpkg.com/@material-ui/core@4.7.1/umd/material-ui.development.js"></script> -->
+        <script src="dist/react.js"></script>
+        <script src="dist/react-dom.js"></script>
+        <script src="dist/material-ui.js"></script>
+
+        <script>
+            // a little hacky ... I know
+            if ('material-ui' in window) {
+                window.MaterialUI = window['material-ui'];
+            }
+        </script>
+
+
         <script src="dist/bundle.js"></script>        
     </head>
     <body>

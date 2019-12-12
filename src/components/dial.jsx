@@ -1,5 +1,5 @@
 
-import {Button, GridList, GridListTile} from "@material-ui/core"
+import {Button, GridList, GridListTile, Typography} from "@material-ui/core"
 
 export const DIAL_MODEL = [
     '1', '2', '3',
@@ -23,7 +23,12 @@ export default function Dial({onDial = (() => null)}) {
                         color="secondary"
                         onClick={() => onDial.apply(this, [symbol])}
                     >
-                        {symbol}
+                        <Typography
+                            variant="title"
+                            color="primary"
+                        >
+                            {symbol}
+                        </Typography>
                     </Button>
                 </GridListTile>
             ))}

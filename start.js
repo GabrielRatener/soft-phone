@@ -24,9 +24,13 @@ const main = (script, args = []) => {
                 }
             ];
             
+            $`mkdir public/dist`;
+
             paths.forEach((path) => {
                 $`cp ${path.npm} ${path.public}`;
             });
+
+            $`webpack-cli --production`;
 
             return;
 

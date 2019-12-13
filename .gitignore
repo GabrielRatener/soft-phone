@@ -1,3 +1,4 @@
 node_modules
 package-lock.json
+twilio-config.json
 public/dist/*

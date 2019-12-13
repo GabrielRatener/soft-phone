@@ -23,29 +23,20 @@
     "@babel/preset-es2015": "^7.0.0-beta.53",
     "@material-ui/core": "~3.9.0",
     "@material-ui/icons": "^4.5.1",
-    "@types/react": "^16.9.16",
-    "@types/react-dom": "^16.9.4",
-    "@types/twilio": "0.0.10",
     "babel-loader": "^8.0.6",
     "jsx-loader": "^0.13.2",
     "react": "16.4.x",
     "react-dom": "16.4.x",
     "react-input-mask": "^2.0.4",
-    "rollup": "^1.27.8",
-    "rollup-plugin-babel": "^4.3.3",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-typescript": "^1.0.1",
-    "ts-loader": "^6.2.1",
-    "tslib": "^1.10.0",
     "twilio-client": "^1.9.7",
-    "typescript": "^3.7.3",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.10"
   },
   "dependencies": {
     "@babel/preset-react": "^7.7.4",
     "babel-core": "^6.26.3",
-    "jolt.sh": "^1.0.0"
+    "express": "^4.17.1",
+    "jolt.sh": "^1.0.0",
+    "twilio": "^3.39.0"
   }
 }

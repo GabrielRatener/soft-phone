@@ -4,8 +4,15 @@ import React from "react"
  
 import App from "./components/app"
 
-window.onload = () => {
+import {setup as setupDevice} from "./device"
+
+window.onload = async () => {
     const app = React.createElement(App, null, []);
 
-    ReactDOM.render(app, document.getElementById('app-mount'));
+    try {
+        await setupDevice();
+        ReactDOM.render(app, document.getElementById('app-mount'));
+    } catch (e) {
+        // TODO: something else
+    }
 }

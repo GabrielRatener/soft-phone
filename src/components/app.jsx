@@ -11,6 +11,7 @@ import {
     Button
 } from "@material-ui/core"
 
+import device from "../device"
 import AppTheme from "./app-theme"
 import NumberField from "./number-field"
 import Dial from "./dial"
@@ -30,8 +31,10 @@ export default class App extends React.Component {
             clientID: 'some-fake-id',
             phone: '',
 
+            callStatus: null,
+
             // this is null when no call is active
-            activeCall: null
+            call: null
         }
     }
 
@@ -56,7 +59,11 @@ export default class App extends React.Component {
     }
 
     startCall() {
-        // TODO: >this<
+        const call = device.connect({
+            'to': this.state.phone
+        });
+
+        // TODO: Listen to call events
     }
 
     hangUpCall() {
@@ -70,7 +77,7 @@ export default class App extends React.Component {
     render() {
         
         const CallControls = (props) =>
-            (this.state.activeCall !== null) ?
+            (this.state.call !== null) ?
                 (
                     <FormGroup {...props}>
                         <Button
@@ -143,7 +150,7 @@ export default class App extends React.Component {
                         </Typography>
 
                         {
-                            this.state.activeCall !== null ?
+                            this.state.call !== null ?
                             (
                                 <Typography align="right">
                                     {this.state.activeCall.duration}

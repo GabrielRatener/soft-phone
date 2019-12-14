@@ -17,3 +17,19 @@ export const http = (url, method = 'GET') => {
         xhr.send();
     });
 }
+
+// for formating elapsed time
+export const formatTime = (time) => {
+    const hours = Math.floor(time / (3600 * 1000));
+    const minutes = Math.floor(time / (60 * 1000)) % 60;
+    const seconds = Math.floor(time / 1000) % 60;
+
+    const segments =
+      (hours > 0) ?
+        [hours, minutes, seconds] :
+        [minutes, seconds];
+
+    return segments
+        .map((n) => `${n}`.padStart(2, '0'))
+        .join(':')
+}

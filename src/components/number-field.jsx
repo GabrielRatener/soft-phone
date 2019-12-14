@@ -7,13 +7,14 @@ import {
 
 import InputMask from "react-input-mask"
 
-export default function NumberField({icon, value, onButtonClick = () => null}) {
+export default function NumberField({icon, value, disabled, onButtonClick = () => null}) {
 
     const adornment = (
         <InputAdornment style={{marginRight: '10px'}}>
             <Fab
                 color="primary"
                 size="small"
+                disabled={disabled}
                 onClick={() => onButtonClick.apply(this, [])}
             >
                 {icon}

@@ -86,7 +86,7 @@ export default class SoftPhone extends React.Component {
                 const inputDevices =
                     Array
                         .from(device.audio.availableInputDevices.values())
-                        .map(({deviceId, label}, i) => (console.log(label), {
+                        .map(({deviceId, label}, i) => ({
                             title: label || `Mic ${i + 1}`,
                             value: deviceId
                         }));

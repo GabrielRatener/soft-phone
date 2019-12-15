@@ -1,5 +1,7 @@
 
 import * as React from "react"
+
+
 import {
     AppBar,
     Tabs,
@@ -28,6 +30,10 @@ const styles = {
     deviceSelect: {
         width: '48%',
         padding: '1%'
+    },
+    statusBar: {
+        marginTop: 5,
+        marginBottom: 5
     }
 }
 
@@ -70,10 +76,26 @@ export default class App extends React.Component {
     componentWillMount() {
         setupDevice()
             .then(() => {
+                const outputDevices =
+                    Array
+                        .from(device.audio.availableOutputDevices.values())
+                        .map(({deviceId, label}, i) => ({
+                            title: label || `Speaker ${i + 1}`,
+                            value: deviceId
+                        }));
+
+                const inputDevices =
+                    Array
+                        .from(device.audio.availableInputDevices.values())
+                        .map(({deviceId, label}, i) => (console.log(label), {
+                            title: label || `Mic ${i + 1}`,
+                            value: deviceId
+                        }));
+
                 this.setState({
                     online: true,
-                    outputDevices: Array.from(device.audio.availableOutputDevices.get()),
-                    inputDevices: Array.from(device.audio.availableInputDevices.get())
+                    outputDevices,
+                    inputDevices
                 });
 
             }, (err) => {
@@ -324,6 +346,7 @@ export default class App extends React.Component {
                             variant="subtitle1"
                             leftText={`Your caller ID: ${this.state.clientID}`}
                             rightText={elapsedTime !== null ? formatTime(elapsedTime) : ''}
+                            style={styles.statusBar}
                             />
 
                         <Dial onDial={(symbol) => this.applyDial(symbol)} />

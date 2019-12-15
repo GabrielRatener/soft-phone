@@ -38,6 +38,7 @@ export default function NumberField({icon, value, disabled, onButtonClick = () =
                     margin="normal"
                     size="large"
                     type="text"
+                    style={{marginBottom: 0}}
                     />                            
             )}
         </InputMask>

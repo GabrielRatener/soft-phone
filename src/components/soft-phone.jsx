@@ -37,8 +37,8 @@ const styles = {
         padding: '1%'
     },
     statusBar: {
-        marginTop: 5,
-        marginBottom: 5
+        marginTop: 10,
+        marginBottom: 10
     }
 }
 

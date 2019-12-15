@@ -8,7 +8,7 @@ export const DIAL_MODEL = [
     '*', '0', '#',
 ];
 
-export default function Dial({onDial = (() => null)}) {
+export default function Dial({disabled, onDial = (() => null)}) {
     const spacing = 2;
 
     return (
@@ -21,6 +21,7 @@ export default function Dial({onDial = (() => null)}) {
                         variant="contained"
                         style={{height: '100%'}}
                         color="secondary"
+                        disabled={disabled}
                         onClick={() => onDial.apply(this, [symbol])}
                     >
                         <Typography

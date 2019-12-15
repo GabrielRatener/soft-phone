@@ -1,4 +1,5 @@
 
+// your very basic ajax call wrapped in a promise!
 export const http = (url, method = 'GET') => {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();

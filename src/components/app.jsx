@@ -12,7 +12,7 @@ import {
 
 import {formatTime} from "../utils"
 
-import device from "../device"
+import device, {setup as setupDevice} from "../device"
 import AppTheme from "./app-theme"
 import StatusBar from "./status-bar"
 import NumberField from "./number-field"
@@ -42,6 +42,8 @@ export default class App extends React.Component {
             phone: '',
             muted: false,
 
+            online: false, // is device is online and connected to Twilio
+
             // can be 'closed', 'pending' or 'open'
             callStatus: 'closed',
 
@@ -50,6 +52,18 @@ export default class App extends React.Component {
 
             _interval: null // for updating current time...
         }
+    }
+
+    componentWillMount() {
+        setupDevice()
+            .then(() => {
+                this.setState({
+                    online: true
+                });
+            }, (err) => {
+                // oooops, something bad happened
+                console.log('Failed to setup device');
+            });
     }
 
     clearNumber() {
@@ -71,10 +85,14 @@ export default class App extends React.Component {
     }
 
     applyDial(symbol) {
-        if (/\d/.test(symbol)) {
-            this.setState({
-                phone: `${this.state.phone}${symbol}`
-            });
+        if (this.state.callStatus === 'closed') {
+            if (this.state.phone.length < 10 && /\d/.test(symbol)) {
+                this.setState({
+                    phone: `${this.state.phone}${symbol}`
+                });
+            }
+        } else {
+            this.state.call._connection.sendDigits(symbol);
         }
     }
 
@@ -106,6 +124,7 @@ export default class App extends React.Component {
             window.clearTimeout(this.state._interval);
 
             this.setState({
+                phone: '',
                 callStatus: 'closed',
                 call: null,
 
@@ -117,20 +136,24 @@ export default class App extends React.Component {
             callStatus: 'pending',
             call: {
                 start: null,
-                phone: this.state.phone
+                phone: this.state.phone,
+                _connection: connection
             }
         });
     }
 
     hangUpCall() {
-        // TODO: >this<
+        this.state.call._connection.disconnect();
     }
 
     toggleCallSound() {
-        // TODO: Actually mute/unmute call...
+        const muted = !this.state.muted;
+
+        // mute the mic
+        this.state.call._connection.mute(muted);
 
         this.setState({
-            muted: !this.state.muted
+            muted
         });
     }
 
@@ -174,19 +197,22 @@ export default class App extends React.Component {
                 )
             } else {
                 return (
-                    <Grid {...props}>
-                        <Button
-                            fullWidth
-                            size="large"
-                            variant="contained"
-                            color="primary"
-                            disabled={!phonePattern.test(this.state.phone)}
-                            onClick={() => this.startCall()}
-                        >
-                            <Icon style={styles.buttonIcon}>phone</Icon>
-                            <span>Call</span>
-                        </Button>
-                    </Grid>
+                    <Button
+                        fullWidth
+                        size="large"
+                        variant="contained"
+                        color="primary"
+                        disabled={
+                            !this.state.online ||
+                            !phonePattern.test(this.state.phone)
+                        }
+                        onClick={() => this.startCall()}
+
+                        {...props}
+                    >
+                        <Icon style={styles.buttonIcon}>phone</Icon>
+                        <span>Call</span>
+                    </Button>
                 )
             }
         }
@@ -220,7 +246,10 @@ export default class App extends React.Component {
                         <NumberField
                             value={this.state.phone}
                             icon={<Icon>backspace</Icon>}
-                            disabled={this.state.phone.length === 0}
+                            disabled={
+                                this.state.phone.length === 0 ||
+                                this.state.callStatus !== 'closed'
+                            }
                             onButtonClick={() => this.eraseLastChar()}
                             />
                         
@@ -230,7 +259,7 @@ export default class App extends React.Component {
                             rightText={elapsedTime !== null ? formatTime(elapsedTime) : ''}
                             />
 
-                        <Dial onDial={(symbol) => this.applyDial(symbol)}/>
+                        <Dial onDial={(symbol) => this.applyDial(symbol)} />
 
                         <CallControls style={{marginTop: 20}} />
                     </Paper>

@@ -1,32 +1,29 @@
 
 const fs = require('fs');
-const http = require('http');
 
 const {$} = require('jolt.sh');
 
 const server = require('./server');
 
-
-
 const copyLibsToPublic = (dev = false) => {
     const extension = dev ? 'development.js' : 'production.min.js';
-     
+    
     const paths = [
         {
-            npm: `node_modules/react/umd/react.${extension}`,
-            public: `public/dist/react.js`
+            npm: `react/umd/react.${extension}`,
+            public: `react.js`
         },
         {
-            npm: `node_modules/react-dom/umd/react-dom.${extension}`,
+            npm: `react-dom/umd/react-dom.${extension}`,
             public: `public/dist/react-dom.js`
         },
         {
-            npm: `node_modules/react-redux/dist/react-redux.${dev ? 'js' : 'min.js'}`,
-            public: `public/dist/react-redux.js`
+            npm: `@material-ui/core/umd/material-ui.${extension}`,
+            public: `material-ui.js`
         },
         {
-            npm: `node_modules/@material-ui/core/umd/material-ui.${extension}`,
-            public: `public/dist/material-ui.js`
+            npm: `node_modules/twilio-client/dist/twilio.${dev ? 'js' : 'min.js'}`,
+            public: `twilio.js`
         }
     ];
 
@@ -35,7 +32,10 @@ const copyLibsToPublic = (dev = false) => {
     }
 
     paths.forEach((path) => {
-        $`cp ${path.npm} ${path.public}`;
+        const npmPath = `node_modules/${path.npm}`;
+        const publicPath = `public/dist/${path.public}`;
+
+        $`cp ${npmPath} ${publicPath}`;
     });
 }
 

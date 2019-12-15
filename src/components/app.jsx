@@ -12,17 +12,26 @@ import {
 
 import {formatTime} from "../utils"
 
-import device, {setup as setupDevice} from "../device"
+import device, {
+    setup as setupDevice,
+    getInputDevices,
+    getOutputDevices
+} from "../device"
 import AppTheme from "./app-theme"
 import StatusBar from "./status-bar"
 import NumberField from "./number-field"
 import Dial from "./dial"
+import SelectDevice from "./select-device"
 
 const phonePattern = /^\d{10}$/;
 
 const styles = {
     buttonIcon: {
         paddingRight: 5
+    },
+    deviceSelect: {
+        width: '48%',
+        padding: '1%'
     }
 }
 
@@ -38,11 +47,19 @@ export default class App extends React.Component {
         this.state = {
             tabIndex: tabs.CALL,
 
+            outputDevices: [],    
+            inputDevices: [],
+
+            settings: {
+                audioInput: null,
+                audioOutput: null,
+                audioMuted: false
+            },
+
             clientID: 'some-fake-id',
             phone: '',
-            muted: false,
 
-            online: false, // is device is online and connected to Twilio
+            online: false, // is device online and connected to Twilio?
 
             // can be 'closed', 'pending' or 'open'
             callStatus: 'closed',
@@ -60,10 +77,42 @@ export default class App extends React.Component {
                 this.setState({
                     online: true
                 });
+
+                Promise.all([getOutputDevices(), getInputDevices()])
+                    .then(([outputDevices, inputDevices]) => {
+                        this.setState({
+                            outputDevices,
+                            inputDevices
+                        })
+                    })
             }, (err) => {
                 // oooops, something bad happened
                 console.log('Failed to setup device');
             });
+    }
+
+    setOutputDevice(id) {
+
+        // TODO: Make Twilio comply
+
+        this.setState({
+            settings: {
+                ...this.state.settings,
+                audioOutput: id
+            }
+        });
+    }
+
+    setInputDevice(id) {
+
+        // TODO: Make Twilio comply
+
+        this.setState({
+            settings: {
+                ...this.state.settings,
+                audioInput: id
+            }
+        });
     }
 
     clearNumber() {
@@ -147,13 +196,16 @@ export default class App extends React.Component {
     }
 
     toggleCallSound() {
-        const muted = !this.state.muted;
+        const audioMuted = !this.state.settings.audioMuted;
 
         // mute the mic
-        this.state.call._connection.mute(muted);
+        this.state.call._connection.mute(audioMuted);
 
         this.setState({
-            muted
+            settings: {
+                ...this.state.settings,
+                audioMuted
+            }
         });
     }
 
@@ -188,9 +240,19 @@ export default class App extends React.Component {
                                 onClick={() => this.toggleCallSound()}
                             >
                                 <Icon style={styles.buttonIcon}>
-                                    {this.state.muted ? 'volume_up' : 'volume_off'}
+                                    {
+                                      this.state.settings.audioMuted ?
+                                        'volume_up' :
+                                        'volume_off'
+                                    }
                                 </Icon>
-                                <span>{this.state.muted ? 'UnMute' : 'Mute'}</span>
+                                <span>
+                                    {
+                                      this.state.settings.audioMuted ?
+                                        'UnMute' :
+                                        'Mute'
+                                    }
+                                </span>
                             </Button>
                         </Grid>
                     </Grid>
@@ -243,6 +305,20 @@ export default class App extends React.Component {
                     </AppBar>
                     
                     <Paper square elevation={0} style={{padding: 5}}>
+                        <SelectDevice
+                            title="Output Device"
+                            style={styles.deviceSelect}
+                            devices={this.state.outputDevices}
+                            onSelect={(value) => this.setOutputDevice(value)}
+                            />
+                        <SelectDevice
+                            title="Input Device"
+                            style={styles.deviceSelect}
+                            devices={this.state.inputDevices}
+                            onSelect={(value) => this.setInputDevice(value)}
+                            />
+
+
                         <NumberField
                             value={this.state.phone}
                             icon={<Icon>backspace</Icon>}

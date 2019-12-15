@@ -1,13 +1,58 @@
 
 const fs = require('fs');
+const http = require('http');
 
 const {$} = require('jolt.sh');
+const express = require('express');
+const {jwt: {ClientCapability}} = require('twilio');
 
-const server = require('./server');
+// Create a mini web-server for serving files
+// and generating Twilio capability tokens
+const startServer = (port) => {
+    const app = express();
+
+    const {
+        accountSid,
+        applicationSid,
+        authToken,
+    } = require('./twilio-config.json');
+
+    app.use(express.static('public'));
+
+    app.get('/services/access-token', (req, res) => {
+    
+        const capability = new ClientCapability({
+            accountSid,
+            authToken
+        });
+    
+        const scope = new ClientCapability.OutgoingClientScope({
+            applicationSid
+        });
+    
+        capability.addScope(scope);
+    
+        res.set('content-type', 'application/jwt');
+        res.send(capability.toJwt());
+    });
+
+    return new Promise((resolve, reject) => {
+        http
+            .createServer(app)
+            .listen(port, (err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+    });
+}
 
 const copyLibsToPublic = (dev = false) => {
     const extension = dev ? 'development.js' : 'production.min.js';
     
+    // large dependencies aren't bundled, and instead referenced externally
     const paths = [
         {
             npm: `react/umd/react.${extension}`,
@@ -15,15 +60,11 @@ const copyLibsToPublic = (dev = false) => {
         },
         {
             npm: `react-dom/umd/react-dom.${extension}`,
-            public: `public/dist/react-dom.js`
+            public: `react-dom.js`
         },
         {
             npm: `@material-ui/core/umd/material-ui.${extension}`,
             public: `material-ui.js`
-        },
-        {
-            npm: `node_modules/twilio-client/dist/twilio.${dev ? 'js' : 'min.js'}`,
-            public: `twilio.js`
         }
     ];
 
@@ -40,8 +81,13 @@ const copyLibsToPublic = (dev = false) => {
 }
 
 const serve = async (port) => {
-    await server.start(port);
-    console.log(`HTTP server started on port ${port}`);
+    if (fs.existsSync('./twilio-config.json')) {
+        await startServer(port);
+        console.log(`HTTP server started on port ${port}`);    
+    } else {
+        console.error('Missing "twilio-config.json" file');
+        process.exit(0);
+    }
 }
 
 const main = async (script, args = []) => {

@@ -1,6 +1,5 @@
 
-import * as React from "react"
-
+import {Component} from "react"
 
 import {
     AppBar,
@@ -41,7 +40,7 @@ export const tabs = {
     SMS: 1
 }
 
-export default class SoftPhone extends React.Component {
+export default class SoftPhone extends Component {
     constructor(props) {
         super(props);
 
@@ -316,19 +315,27 @@ export default class SoftPhone extends React.Component {
                 </AppBar>
                 
                 <Paper square elevation={0} style={{padding: 5}}>
-                    <SelectDevice
-                        title="Output Device"
-                        style={styles.deviceSelect}
-                        devices={this.state.outputDevices}
-                        onSelect={(value) => this.setOutputDevice(value)}
-                        />
-                    <SelectDevice
-                        title="Input Device"
-                        style={styles.deviceSelect}
-                        devices={this.state.inputDevices}
-                        onSelect={(value) => this.setInputDevice(value)}
-                        />
+                    {
+                        (this.state.outputDevices.length > 0) ?
+                            <SelectDevice
+                                title="Output Device"
+                                style={styles.deviceSelect}
+                                devices={this.state.outputDevices}
+                                onSelect={(value) => this.setOutputDevice(value)}
+                                /> :
+                            null
+                    }
 
+                    {
+                        (this.state.inputDevices.length > 0) ?
+                            <SelectDevice
+                                title="Input Device"
+                                style={styles.deviceSelect}
+                                devices={this.state.inputDevices}
+                                onSelect={(value) => this.setInputDevice(value)}
+                                /> :
+                            null
+                    }
 
                     <NumberField
                         value={this.state.phone}

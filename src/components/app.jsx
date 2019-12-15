@@ -11,12 +11,8 @@ import {
 } from "@material-ui/core"
 
 import {formatTime} from "../utils"
+import device, {setup as setupDevice} from "../device"
 
-import device, {
-    setup as setupDevice,
-    getInputDevices,
-    getOutputDevices
-} from "../device"
 import AppTheme from "./app-theme"
 import StatusBar from "./status-bar"
 import NumberField from "./number-field"
@@ -75,16 +71,11 @@ export default class App extends React.Component {
         setupDevice()
             .then(() => {
                 this.setState({
-                    online: true
+                    online: true,
+                    outputDevices: Array.from(device.audio.availableOutputDevices.get()),
+                    inputDevices: Array.from(device.audio.availableInputDevices.get())
                 });
 
-                Promise.all([getOutputDevices(), getInputDevices()])
-                    .then(([outputDevices, inputDevices]) => {
-                        this.setState({
-                            outputDevices,
-                            inputDevices
-                        })
-                    })
             }, (err) => {
                 // oooops, something bad happened
                 console.log('Failed to setup device');
@@ -93,7 +84,7 @@ export default class App extends React.Component {
 
     setOutputDevice(id) {
 
-        // TODO: Make Twilio comply
+        device.audio.speakerDevices.set(id);
 
         this.setState({
             settings: {
@@ -105,7 +96,7 @@ export default class App extends React.Component {
 
     setInputDevice(id) {
 
-        // TODO: Make Twilio comply
+        device.audio.setInputDevice(id);
 
         this.setState({
             settings: {

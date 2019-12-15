@@ -8,7 +8,8 @@ import {
     Paper,
     Icon,
     Button,
-    Grid
+    Grid,
+    Typography
 } from "@material-ui/core"
 
 import {formatTime} from "../utils"
@@ -18,10 +19,16 @@ import StatusBar from "./status-bar"
 import NumberField from "./number-field"
 import Dial from "./dial"
 import SelectDevice from "./select-device"
+import OnlineStatus from "./online-status"
 
 const phonePattern = /^\d{10}$/;
 
 const styles = {
+    root: {
+        padding: 0,
+        maxWidth: 400,
+        position: 'relative'
+    },
     buttonIcon: {
         paddingRight: 5
     },
@@ -59,7 +66,8 @@ export default class SoftPhone extends Component {
             clientID: 'some-fake-id',
             phone: '',
 
-            online: false, // is device online and connected to Twilio?
+            // is browser online
+            online: navigator.onLine,
 
             // can be 'closed', 'pending' or 'open'
             callStatus: 'closed',
@@ -72,34 +80,61 @@ export default class SoftPhone extends Component {
     }
 
     componentWillMount() {
-        setupDevice()
-            .then(() => {
-                const outputDevices =
-                    Array
-                        .from(device.audio.availableOutputDevices.values())
-                        .map(({deviceId, label}, i) => ({
-                            title: label || `Speaker ${i + 1}`,
-                            value: deviceId
-                        }));
+        const init = () => {
+            initialized = true;
 
-                const inputDevices =
-                    Array
-                        .from(device.audio.availableInputDevices.values())
-                        .map(({deviceId, label}, i) => ({
-                            title: label || `Mic ${i + 1}`,
-                            value: deviceId
-                        }));
+            setupDevice()
+                .then(() => {
+                    const outputDevices =
+                        Array
+                            .from(device.audio.availableOutputDevices.values())
+                            .map(({deviceId, label}, i) => ({
+                                title: label || `Speaker ${i + 1}`,
+                                value: deviceId
+                            }));
 
-                this.setState({
-                    online: true,
-                    outputDevices,
-                    inputDevices
+                    const inputDevices =
+                        Array
+                            .from(device.audio.availableInputDevices.values())
+                            .map(({deviceId, label}, i) => ({
+                                title: label || `Mic ${i + 1}`,
+                                value: deviceId
+                            }));
+
+                    this.setState({
+                        online: true,
+                        outputDevices,
+                        inputDevices
+                    });
+                }, (err) => {
+                    initialized = false;
+
+                    // oooops, something bad happened
+                    console.log('Failed to setup device');
                 });
+        }
 
-            }, (err) => {
-                // oooops, something bad happened
-                console.log('Failed to setup device');
+        let initialized = false;
+
+        window.addEventListener('online', () => {
+            this.setState({
+                online: true
             });
+
+            if (!initialized) {
+                init();
+            }
+        });
+
+        window.addEventListener('offline', () => {
+            this.setState({
+                online: false
+            });
+        });
+
+        if (this.state.online) {
+            init();
+        }
     }
 
     setOutputDevice(id) {
@@ -291,7 +326,8 @@ export default class SoftPhone extends Component {
         }
         
         return (
-            <Paper square elevation={4} style={{padding: 0, maxWidth: 400}}>
+            <Paper square elevation={4} style={styles.root}>
+                
                 <AppBar position="static" color="secondary">
                     <Tabs
                         value={this.state.tabIndex}
@@ -349,8 +385,12 @@ export default class SoftPhone extends Component {
                     
                     <StatusBar
                         variant="subtitle1"
-                        leftText={`Your caller ID: ${this.state.clientID}`}
-                        rightText={elapsedTime !== null ? formatTime(elapsedTime) : ''}
+                        leftContent={`Your caller ID: ${this.state.clientID}`}
+                        rightContent={
+                          this.state.callStatus === 'open' ?
+                            <span>{formatTime(elapsedTime)}</span> :
+                            <OnlineStatus variant="subtitle1" value={this.state.online} />
+                        }
                         style={styles.statusBar}
                         />
 
